@@ -4,88 +4,93 @@ Website bán phụ kiện gaming
 
 ---
 
-## Thành viên
+## 👥 Thành viên
 
 * Hà Phú Đạt - 21130018
 * Võ Khương Đại Bảo - 21130284
 
-## Giới thiệu
+---
 
-BaDaShop_Gaming là website thương mại điện tử đơn giản chuyên bán phụ kiện gaming như:
+## 📌 Giới thiệu
+
+**BaDaShop_Gaming** là website thương mại điện tử đơn giản chuyên bán phụ kiện gaming như:
 
 * Tai nghe gaming
+* Chuột, bàn phím
 * Tay cầm chơi game
 * Phụ kiện điện thoại
-* Thiết bị hỗ trợ chơi game
 
-Website được xây dựng phục vụ cho đồ án môn **Chuyên Đề Web** với mục tiêu:
+Dự án được xây dựng phục vụ cho đồ án môn **Chuyên Đề Web**, với mục tiêu:
 
-* Áp dụng mô hình MVC
-* Xây dựng REST API
-* Kết nối Frontend và Backend
-* Thao tác với database MySQL
+* Áp dụng mô hình **MVC**
+* Xây dựng **RESTful API**
+* Kết nối **Frontend (ReactJS)** và **Backend (Spring Boot)**
+* Thiết kế và thao tác với **MySQL Database**
 
-## ️ Công nghệ sử dụng
+---
 
-### Frontend
+## 🛠️ Công nghệ sử dụng
 
-* HTML
-* CSS
-* JavaScript
+### 🔹 Frontend
+
+* HTML, CSS, JavaScript
 * ReactJS
 * Bootstrap 5
 * Axios
 
-### Backend
+### 🔹 Backend
 
 * Java Spring Boot
 * Spring Data JPA
 * Spring Security
 * REST API
 
-### Database
+### 🔹 Database
 
 * MySQL
 
-### Công cụ
+### 🔹 Công cụ
 
 * XAMPP
 * Navicat Lite
 * Git & GitHub
 
-## Sitemap – BaDaShop_Gaming
+---
 
-### Public Pages (Guest)
+## 🗺️ Sitemap
+
+### 🔸 Guest (Khách)
 
 * Home → `/`
-* Shop (Product Listing) → `/shop`
+* Shop (Danh sách sản phẩm) → `/shop`
 * Product Detail → `/product/{id}`
-* Search Products → `/search`
-* Cart → `/cart`
+* Search → `/search`
 * Login → `/login`
 * Register → `/register`
-* Forgot Password → `/forgot-password`
 
-### User Pages (Authenticated)
+---
 
-* User Profile → `/profile`
+### 🔸 User (Đã đăng nhập)
+
+* Cart → `/cart`
 * Checkout → `/checkout`
 * Order History → `/orders`
-* Order Detail → `/orders/{id}`
-* Product Review → `/review`
+* Profile → `/profile`
 
-### Admin Pages
+---
+
+### 🔸 Admin
 
 * Dashboard → `/admin`
-* Manage Products → `/admin/products`
-* Create Product → `/admin/products/new`
-* Edit Product → `/admin/products/{id}`
-* Manage Categories → `/admin/categories`
-* Manage Orders → `/admin/orders`
-* Manage Users → `/admin/users`
-* Revenue Statistics → `/admin/statistics`
+* Products → `/admin/products`
+* Categories → `/admin/categories`
+* Orders → `/admin/orders`
+* Users → `/admin/users`
+* Statistics → `/admin/statistics`
 
-## Sitemap Structure (Tree)
+---
+
+## 🌳 Sitemap Structure
 
 ```
 /
@@ -98,28 +103,25 @@ Website được xây dựng phục vụ cho đồ án môn **Chuyên Đề Web*
 │
 ├── login
 ├── register
-├── forgot-password
 │
 ├── profile
 ├── checkout
 │
 ├── orders
-│   └── orders/{id}
-│
-├── review
 │
 └── admin
-    ├── dashboard
     ├── products
-    │   ├── new
-    │   └── {id}
     ├── categories
     ├── orders
     ├── users
     └── statistics
 ```
 
-## 👥 Use Case
+---
+
+## 🎯 Use Case
+
+![usecase.png](usecase.png)
 
 ### 🔹 Guest
 
@@ -128,29 +130,38 @@ Website được xây dựng phục vụ cho đồ án môn **Chuyên Đề Web*
 * Đăng ký
 * Đăng nhập
 
-### User
+---
 
+### 🔹 User
+
+* Đăng nhập / Đăng xuất
 * Thêm vào giỏ hàng
-* Thanh toán (Checkout)
-* Xem lịch sử đơn hàng
+* Đặt hàng
+* Thanh toán
+* Xem đơn hàng
 * Đánh giá sản phẩm
 * Cập nhật thông tin cá nhân
 
-### Admin
+---
+
+### 🔹 Admin
 
 * Quản lý sản phẩm
 * Quản lý danh mục
 * Quản lý đơn hàng
 * Quản lý người dùng
-* Thống kê doanh thu
+* Quản lý đánh giá
+* Quản lý khuyến mãi
+* Xem thống kê
 
+---
 
-## Kiến trúc hệ thống
+## 🏗️ Kiến trúc hệ thống
 
 ```
 ReactJS (Frontend)
         ↓
-Axios (API Call)
+Axios (API)
         ↓
 Spring Boot Controller
         ↓
@@ -161,23 +172,24 @@ Repository (JPA)
 MySQL Database
 ```
 
+---
 
-## Mục tiêu đồ án
+## 🎯 Mục tiêu đồ án
 
 * Xây dựng website bán hàng hoạt động được
-* Có đầy đủ frontend + backend + database
+* Có đầy đủ Frontend + Backend + Database
 * Áp dụng REST API
-* Deploy và quản lý code bằng GitHub
+* Quản lý source code bằng GitHub
 
 ---
 
-## Trạng thái dự án
+## 🚧 Trạng thái dự án
 
-- Đang phát triển
+* Đang phát triển
 
 ---
 
-## Repository
+## 🔗 Repository
 
-GitHub: https://github.com/haphudat/BaDaShop_Gaming
-
+GitHub:
+https://github.com/haphudat/BaDaShop_Gaming
