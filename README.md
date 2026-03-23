@@ -120,7 +120,7 @@ Website được xây dựng phục vụ cho đồ án môn **Chuyên Đề Web*
 ```
 
 ## 👥 Use Case
-
+![usecase.png](usecase.png)
 ### 🔹 Guest
 
 * Xem sản phẩm
