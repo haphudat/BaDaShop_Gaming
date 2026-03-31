@@ -1,0 +1,102 @@
+import { Link, useNavigate } from "react-router-dom";
+import {useState} from "react";
+
+function Navbar({ setSearch, setCategory, cart }) {
+    //Login, Signup
+    const [showMenu, setShowMenu] = useState(false);
+
+    const navigate = useNavigate();
+    // Đếm số lượng sản phẩm
+    const totalQuantity = cart.reduce((sum, item) => {
+        return sum + item.quantity;
+    }, 0);
+    return (
+        <nav
+            className="d-flex align-items-center px-4"
+            style={{ background: "#f5a623", height: "70px" }}
+        >
+
+            {/* LOGO */}
+            <Link
+                to="/"
+                className="fw-bold me-4 text-dark"
+                style={{ textDecoration: "none" }}
+            >
+                BaDaShop
+            </Link>
+
+            {/* CATEGORY */}
+            <div className="d-flex gap-3 me-4">
+                <span style={{ cursor: "pointer" }} onClick={() => {setCategory("tai nghe");navigate("/shop");}}><i className="fa-solid fa-headphones"></i> Tai nghe</span>
+                <span style={{ cursor: "pointer" }} onClick={() => {setCategory("tay cầm");navigate("/shop");}}><i className="fa-solid fa-gamepad"></i> Tay cầm</span>
+                <span style={{ cursor: "pointer" }} onClick={() => {setCategory("bàn phím");navigate("/shop");}}><i className="fa-solid fa-keyboard"></i> Bàn phím</span>
+                <span style={{ cursor: "pointer" }} onClick={() => {setCategory("chuột");navigate("/shop");}}><i className="fa-solid fa-computer-mouse"></i> Chuột</span>
+                <span style={{ cursor: "pointer" }} onClick={() => {setCategory("màn hình");navigate("/shop");}}><i className="fa-solid fa-display"></i> Màn hình</span>
+                <span style={{ cursor: "pointer" }} onClick={() => {setCategory("ghế");navigate("/shop");}}><i className="fa-solid fa-couch"></i> Ghế</span>
+                <span style={{ cursor: "pointer" }} onClick={() => {setCategory("phụ kiện khác");navigate("/shop");}}><i className="fa-solid fa-wand-sparkles"></i> Phụ kiện khác</span>
+                {/* HOT DEAL */}
+                <span style={{ color: "red", fontWeight: "bold", cursor: "pointer" }} onClick={() => {setCategory("");navigate("/shop");}}><i className="fa-solid fa-fire"></i> Hot Deals</span>
+            </div>
+
+            {/* SEARCH (GIỮA) */}
+            <form
+                className="d-flex mx-auto"
+                style={{ width: "400px" }}
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    navigate("/shop");
+                }}
+            >
+                <input
+                    className="form-control"
+                    placeholder="Tìm kiếm..."
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+                <button
+                    className="btn btn-dark px-3"
+                    style={{ whiteSpace: "nowrap" }}
+                >
+                    Tìm kiếm
+                </button>
+            </form>
+
+            {/* RIGHT */}
+            <div className="ms-4 d-flex align-items-center gap-3">
+                <Link to="/cart" style={{ textDecoration: "none" }}>
+                    <div>
+                        <span style={{ fontSize: "20px", color: "black"}}><i className="fa-solid fa-cart-arrow-down"></i></span>
+                    </div>
+                </Link>
+                {/*Đăng ký, Đăng nhập*/}
+                <div style={{ position: "relative" }}>
+
+                    <span style={{ cursor: "pointer" }} onClick={() => setShowMenu(!showMenu)}><i className="fa-solid fa-user"></i> Login</span>
+
+                    {/* DROPDOWN */}
+                    {showMenu && (
+                        <div
+                            style={{
+                                position: "absolute",
+                                top: "30px",
+                                right: 0,
+                                background: "#fff",
+                                border: "1px solid #ccc",
+                                borderRadius: "5px",
+                                width: "150px"
+                            }}>
+
+                            <div style={{ padding: "10px", cursor: "pointer" }}>Đăng nhập</div>
+
+                            <div style={{ padding: "10px", cursor: "pointer" }}>Đăng ký</div>
+
+                        </div>
+                    )}
+
+                </div>
+            </div>
+
+        </nav>
+    );
+}
+
+export default Navbar;

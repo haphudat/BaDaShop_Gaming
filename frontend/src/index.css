@@ -1,0 +1,16 @@
+:root{
+  --primary:#f5a623;
+  --bg:#f5f5f5;
+  --text:#333;
+  --card:#ffffff;
+}
+
+body{
+  background: var(--bg);
+  color: var(--text);
+}
+
+span:hover{
+  cursor: pointer;
+  opacity: 0.8;
+}
