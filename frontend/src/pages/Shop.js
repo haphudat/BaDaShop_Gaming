@@ -1,0 +1,50 @@
+import ProductCard from "../components/ProductCard";
+
+function Shop({ search, category }) {
+
+    const products = [
+        {
+            id: 1,
+            name: "Chuột Gaming",
+            price: "500.000đ",
+            image: "https://via.placeholder.com/200"
+        },
+        {
+            id: 2,
+            name: "Bàn phím RGB",
+            price: "1.200.000đ",
+            image: "https://via.placeholder.com/200"
+        },
+        {
+            id: 3,
+            name: "Tai nghe Gaming",
+            price: "800.000đ",
+            image: "https://via.placeholder.com/200"
+        }
+    ];
+
+    const filteredProducts = products.filter(p =>
+        p.name.toLowerCase().includes(search.toLowerCase()) &&
+        p.name.toLowerCase().includes(category.toLowerCase())
+    );
+
+    return (
+        <div className="container mt-4">
+            <h2>Kết quả tìm kiếm</h2>
+
+            <div className="row mt-4">
+                {filteredProducts.map(product => (
+                    <ProductCard
+                        key={product.id}
+                        id={product.id}
+                        name={product.name}
+                        price={product.price}
+                        image={product.image}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+}
+
+export default Shop;
