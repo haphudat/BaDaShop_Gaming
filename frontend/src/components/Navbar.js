@@ -63,8 +63,26 @@ function Navbar({ setSearch, setCategory, cart }) {
             {/* RIGHT */}
             <div className="ms-4 d-flex align-items-center gap-3">
                 <Link to="/cart" style={{ textDecoration: "none" }}>
-                    <div>
+                    <div style={{position: "relative", display: "inline-block"}}>
                         <span style={{ fontSize: "20px", color: "black"}}><i className="fa-solid fa-cart-arrow-down"></i></span>
+
+                    {/*Số lượng hàng trong giỏ*/}
+                        {totalQuantity > 0 && (
+                            <span style={{
+                                position: "absolute",
+                                top: "-5px",
+                                right: "-5px",
+                                background: "red",
+                                color: "#fff",
+                                borderRadius: "50%",
+                                minWidth: "15px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: "12px",
+                                fontWeight: "bold"
+                            }}>{totalQuantity}</span>
+                        )}
                     </div>
                 </Link>
                 {/*Đăng ký, Đăng nhập*/}
@@ -72,7 +90,6 @@ function Navbar({ setSearch, setCategory, cart }) {
 
                     <span style={{ cursor: "pointer" }} onClick={() => setShowMenu(!showMenu)}><i className="fa-solid fa-user"></i> Login</span>
 
-                    {/* DROPDOWN */}
                     {showMenu && (
                         <div
                             style={{
