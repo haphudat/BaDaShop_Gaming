@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import {useState} from "react";
+import logo from "../assets/logo.png";
 
 function Navbar({ setSearch, setCategory, cart }) {
     //Login, Signup
@@ -19,12 +20,16 @@ function Navbar({ setSearch, setCategory, cart }) {
             {/* LOGO */}
             <Link
                 to="/"
-                className="fw-bold me-4 text-dark"
+                className="fw-bold me-4 text-dark d-flex align-items-center gap-2"
                 style={{ textDecoration: "none" }}
             >
-                BaDaShop
+                <img
+                    src={logo}
+                    alt="logo"
+                    style={{ width: "40px" }}
+                />
+                <span>BaDa Shop</span>
             </Link>
-
             {/* CATEGORY */}
             <div className="d-flex gap-3 me-4">
                 <span style={{ cursor: "pointer" }} onClick={() => {setCategory("tai nghe");navigate("/shop");}}><i className="fa-solid fa-headphones"></i> Tai nghe</span>
