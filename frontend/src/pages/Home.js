@@ -1,29 +1,22 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
 import ProductCard from "../components/ProductCard";
 
 function Home({ search }) {
 
-    const products = [
-        {
-            id: 1,
-            name: "Chuột Gaming",
-            price: "500.000đ",
-            image: "https://via.placeholder.com/200"
-        },
-        {
-            id: 2,
-            name: "Bàn phím RGB",
-            price: "1.200.000đ",
-            image: "https://via.placeholder.com/200"
-        },
-        {
-            id: 3,
-            name: "Tai nghe Gaming",
-            price: "800.000đ",
-            image: "https://via.placeholder.com/200"
-        }
-    ];
+    const [products, setProducts] = useState([]);
 
-    // ✅ đặt SAU products
+    // Gọi API
+    useEffect(() => {
+        axios.get("http://localhost:8081/api/products")
+            .then(res => {
+                setProducts(res.data);
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    }, []);
+
     const filteredProducts = products.filter(p =>
         p.name.toLowerCase().includes(search.toLowerCase())
     );

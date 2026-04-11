@@ -2,7 +2,9 @@ function Cart({ cart, setCart }) {
 
     // CHUYỂN "500.000đ" → 500000
     const parsePrice = (price) => {
-        return Number(price.replace(/\./g, "").replace("đ", ""));
+        return typeof price === "string"
+            ? Number(price.replace(/\./g, "").replace("đ", ""))
+            : price;
     };
 
     // TÍNH TỔNG
