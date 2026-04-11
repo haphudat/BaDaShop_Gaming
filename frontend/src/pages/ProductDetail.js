@@ -1,108 +1,128 @@
 import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 function ProductDetail({ setCart }) {
 
-    const [quantity, setQuantity] = useState(1);
-
     const { id } = useParams();
 
-    const products = [
-        {
-            id: 1,
-            name: "Chuột Gaming",
-            price: "500.000đ",
-            image: "https://via.placeholder.com/300"
-        },
-        {
-            id: 2,
-            name: "Bàn phím RGB",
-            price: "1.200.000đ",
-            image: "https://via.placeholder.com/300"
-        },
-        {
-            id: 3,
-            name: "Tai nghe Gaming",
-            price: "800.000đ",
-            image: "https://via.placeholder.com/300"
-        }
-    ];
+    const [product, setProduct] = useState(null);
+    const [quantity, setQuantity] = useState(1);
 
-    const product = products.find(p => p.id == id);
+    // Gọi API
+    useEffect(() => {
+        axios.get(`http://localhost:8081/api/products/${id}`)
+            .then(res => setProduct(res.data))
+            .catch(err => console.log(err));
+    }, [id]);
+
+    // 👉 format giá
+    const formatPrice = (price) => {
+        return price?.toLocaleString() + "đ";
+    };
+
+    // Thêm vô giỏ
+    const handleAddToCart = () => {
+        setCart(prev => {
+            const existing = prev.find(item => item.id === product.id);
+
+            if (existing) {
+                return prev.map(item =>
+                    item.id === product.id
+                        ? { ...item, quantity: item.quantity + quantity }
+                        : item
+                );
+            } else {
+                return [...prev, { ...product, quantity }];
+            }
+        });
+
+        alert("Đã thêm vào giỏ!");
+    };
+
+    if (!product) return <h2 className="mt-4">Đang tải...</h2>;
 
     return (
         <div className="container mt-4">
+            <div className="row">
 
-            {product ? (
-                <div className="row">
+                {/* IMAGE */}
+                <div className="col-md-6 text-center">
+                    <img
+                        src={product.image}
+                        alt={product.name}
+                        className="img-fluid border rounded"
+                    />
+                </div>
 
-                    {/* LEFT - IMAGE */}
-                    <div className="col-md-6 text-center">
-                        <img
-                            src={product.image}
-                            className="img-fluid border rounded"
-                        />
+                {/* INFO */}
+                <div className="col-md-6">
+
+                    <h2>{product.name}</h2>
+
+                    <p style={{
+                        color: "#f5a623",
+                        fontSize: "24px",
+                        fontWeight: "bold"
+                    }}>
+                        {formatPrice(product.price)}
+                    </p>
+
+                    <p><b>Hãng:</b> {product.brand}</p>
+                    <p><b>Mô tả:</b> {product.description}</p>
+                    <p><b>Còn lại:</b> {product.stock}</p>
+
+                    {/* THÔNG SỐ */}
+                    {product.specs && (
+                        <div className="mt-3">
+                            <h5>Thông số sản phẩm</h5>
+                            <ul>
+                                {product.specs.split("\n").map((line, index) => (
+                                    <li key={index}>{line}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {/* QUANTITY */}
+                    <div className="d-flex align-items-center mb-3 mt-3">
+                        <button
+                            className="btn btn-outline-secondary"
+                            onClick={() => setQuantity(q => q - 1)}
+                            disabled={quantity <= 1}
+                        >
+                            -
+                        </button>
+
+                        <span className="mx-3">{quantity}</span>
+
+                        <button
+                            className="btn btn-outline-secondary"
+                            onClick={() => setQuantity(q => q + 1)}
+                        >
+                            +
+                        </button>
                     </div>
 
-                    {/* RIGHT - INFO */}
-                    <div className="col-md-6">
-                        <h2>{product.name}</h2>
+                    {/* BUTTON */}
+                    <div className="d-flex gap-3">
 
-                        <p
-                            style={{
-                                color: "#f5a623",
-                                fontSize: "24px",
-                                fontWeight: "bold"
-                            }}
+                        <button
+                            className="btn btn-warning px-4"
+                            onClick={handleAddToCart}
                         >
-                            {product.price}
-                        </p>
+                            🛒 Thêm vào giỏ
+                        </button>
 
-                        {/* QUANTITY */}
-                        <div className="d-flex align-items-center mb-3">
-                            <button
-                                className="btn btn-outline-secondary"
-                                onClick={() => setQuantity(quantity - 1)}
-                                disabled={quantity <= 1}
-                            >
-                                -
-                            </button>
+                        <button className="btn btn-danger px-4">
+                            ⚡ Mua ngay
+                        </button>
 
-                            <span className="mx-3">{quantity}</span>
-
-                            <button
-                                className="btn btn-outline-secondary"
-                                onClick={() => setQuantity(quantity + 1)}
-                            >
-                                +
-                            </button>
-                        </div>
-
-                        {/* BUTTON */}
-                        <div className="d-flex gap-3">
-
-                            <button
-                                className="btn btn-warning px-4"
-                                onClick={() => {
-                                    setCart(prev => [...prev, { ...product, quantity }]);
-                                    alert("Đã thêm vào giỏ!");
-                                }}
-                            >
-                                🛒 Thêm vào giỏ
-                            </button>
-
-                            <button className="btn btn-danger px-4">
-                                ⚡ Mua ngay
-                            </button>
-
-                        </div>
                     </div>
 
                 </div>
-            ) : (
-                <h2>Không tìm thấy sản phẩm</h2>
-            )}
 
+            </div>
         </div>
     );
 }
