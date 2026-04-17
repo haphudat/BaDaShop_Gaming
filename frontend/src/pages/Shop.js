@@ -1,38 +1,33 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
 import ProductCard from "../components/ProductCard";
 
 function Shop({ search, category }) {
 
-    const products = [
-        {
-            id: 1,
-            name: "Chuột Gaming",
-            price: "500.000đ",
-            image: "https://via.placeholder.com/200"
-        },
-        {
-            id: 2,
-            name: "Bàn phím RGB",
-            price: "1.200.000đ",
-            image: "https://via.placeholder.com/200"
-        },
-        {
-            id: 3,
-            name: "Tai nghe Gaming",
-            price: "800.000đ",
-            image: "https://via.placeholder.com/200"
-        }
-    ];
+    const [products, setProducts] = useState([]);
 
-    const filteredProducts = products.filter(p =>
-        p.name.toLowerCase().includes(search.toLowerCase()) &&
-        p.name.toLowerCase().includes(category.toLowerCase())
-    );
+    useEffect(() => {
+        axios.get("http://localhost:8081/api/products")
+            .then(res => setProducts(res.data))
+            .catch(err => console.log(err));
+    }, []);
+
+    const filteredProducts = products.filter(p => {
+        const keyword = search.toLowerCase();
+
+        return (
+            (
+                p.name?.toLowerCase().includes(keyword) ||
+                p.category?.toLowerCase().includes(keyword) ||
+                p.brand?.toLowerCase().includes(keyword)
+            ) &&
+            (category === "" || p.category === category)
+        );
+    });
 
     return (
         <div className="container mt-4">
-            <h2>Kết quả tìm kiếm</h2>
-
-            <div className="row mt-4">
+            <div className="row">
                 {filteredProducts.map(product => (
                     <ProductCard
                         key={product.id}

@@ -77,13 +77,15 @@ function ProductDetail({ setCart }) {
                         <div className="mt-3">
                             <h5>Thông số sản phẩm</h5>
                             <ul>
-                                {product.specs.split("\n").map((line, index) => (
-                                    <li key={index}>{line}</li>
-                                ))}
+                                {product.specs
+                                    .replace(/\\n/g, "\n")
+                                    .split("\n")
+                                    .map((line, index) => (
+                                        <li key={index}>{line}</li>
+                                    ))}
                             </ul>
                         </div>
                     )}
-
                     {/* QUANTITY */}
                     <div className="d-flex align-items-center mb-3 mt-3">
                         <button
