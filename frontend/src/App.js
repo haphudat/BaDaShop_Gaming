@@ -11,6 +11,8 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Warranty from "./pages/Warranty";
 import Privacy from "./pages/Privacy";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 function App() {
     const [category, setCategory] = useState("");
@@ -40,6 +42,8 @@ function App() {
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/warranty" element={<Warranty />} />
                 <Route path="/privacy" element={<Privacy />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
             </Routes>
             <Footer />
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import ProductCard from "../components/ProductCard";
 
-function Home({ search }) {
+function Home({ search, category }) {
 
     const [products, setProducts] = useState([]);
 
@@ -18,9 +18,9 @@ function Home({ search }) {
     }, []);
 
     const filteredProducts = products.filter(p =>
-        p.name.toLowerCase().includes(search.toLowerCase())
+        p.name.toLowerCase().includes(search.toLowerCase()) &&
+        (category === "" || p.category === category)
     );
-
     return (
         <div className="container mt-4">
 
