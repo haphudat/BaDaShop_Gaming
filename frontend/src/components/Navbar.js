@@ -23,6 +23,10 @@ function Navbar({ setSearch, setCategory, cart }) {
                 to="/"
                 className="fw-bold me-4 text-dark d-flex align-items-center gap-2"
                 style={{ textDecoration: "none" }}
+                onClick={() => {
+                    setSearch("");
+                    setCategory("");
+                }}
             >
                 <img
                     src={logo}
