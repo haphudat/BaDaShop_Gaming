@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-function ProductDetail({ setCart }) {
+function ProductDetail({cart, setCart }) {
 
     const { id } = useParams();
     const navigate = useNavigate();
@@ -26,16 +26,25 @@ function ProductDetail({ setCart }) {
 
         const user = JSON.parse(localStorage.getItem("user"));
 
-        // login
         if (!user) {
             alert("Vui lòng đăng nhập!");
-
-            // chuển trang login
             navigate("/login");
-
             return;
         }
 
+        // Kiêm tra
+        const existing = cart.find(item => item.id === product.id);
+
+        const currentQty = existing ? existing.quantity : 0;
+
+        const newTotal = currentQty + quantity;
+
+        if (newTotal > product.stock) {
+            alert("Vượt quá số lượng trong kho!");
+            return;
+        }
+
+        // Chỉ chạy khi hợp lệ
         setCart(prev => {
 
             const existing = prev.find(item => item.id === product.id);
