@@ -7,6 +7,7 @@ function Navbar({ setSearch, setCategory, cart }) {
     const [showMenu, setShowMenu] = useState(false);
     const user = JSON.parse(localStorage.getItem("user")); // Hiển thị tên user
     const navigate = useNavigate();
+
     // Đếm số lượng sản phẩm
     const totalQuantity = cart.reduce((sum, item) => {
         return sum + item.quantity;
