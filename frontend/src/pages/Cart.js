@@ -17,11 +17,20 @@ function Cart({ cart, setCart }) {
 
     // tăng
     const increase = (id) => {
-        setCart(cart.map(item =>
-            item.id === id
-                ? { ...item, quantity: item.quantity + 1 }
-                : item
-        ));
+        setCart(prev =>
+            prev.map(item => {
+                if (item.id === id) {
+
+                    // Hết cộng dc khi vượt stock
+                    if (item.quantity >= item.stock) {
+                        return item;
+                    }
+
+                    return { ...item, quantity: item.quantity + 1 };
+                }
+                return item;
+            })
+        );
     };
 
     // giảm
@@ -84,7 +93,7 @@ function Cart({ cart, setCart }) {
                             <div className="d-flex align-items-center gap-2">
                                 <button onClick={() => decrease(item.id)}>-</button>
                                 <span>{item.quantity}</span>
-                                <button onClick={() => increase(item.id)}>+</button>
+                                <button onClick={() => increase(item.id)} disabled={item.quantity >= item.stock}>+</button>
                             </div>
 
                             {/* tổng từng sản phẩm */}
