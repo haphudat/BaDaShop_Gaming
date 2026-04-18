@@ -13,6 +13,9 @@ import Warranty from "./pages/Warranty";
 import Privacy from "./pages/Privacy";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Checkout from "./pages/Checkout";
+import Orders from "./pages/Orders";
+import Profile from "./pages/Profile";
 
 function App() {
     const [category, setCategory] = useState("");
@@ -49,6 +52,9 @@ function App() {
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/checkout" element={<Checkout cart={cart}/>} />
+                <Route path="/orders" element={<Orders />} />
+                <Route path="/profile" element={<Profile />} />
             </Routes>
             <Footer />
 

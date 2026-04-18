@@ -11,6 +11,7 @@ function Login() {
 
     const handleLogin = async () => {
 
+        // validate
         if (!username || !password) {
             alert("Vui lòng nhập đầy đủ thông tin!");
             return;
@@ -22,13 +23,14 @@ function Login() {
                 password: password
             });
 
-            if (res.data) {
-                // lưu user vào localStorage
+            if (res.data && res.data.id) {
+
+                // lưu user
                 localStorage.setItem("user", JSON.stringify(res.data));
 
                 alert("Đăng nhập thành công!");
 
-                // chuyển về trang chủ
+                // Chuyển trang
                 navigate("/");
 
             } else {

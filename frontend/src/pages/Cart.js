@@ -6,6 +6,7 @@ function Cart({ cart, setCart }) {
     const [selected, setSelected] = useState([]);
     const navigate = useNavigate();
 
+
     // chọn sản phẩm
     const toggle = (id) => {
         if (selected.includes(id)) {
@@ -129,6 +130,13 @@ function Cart({ cart, setCart }) {
                                     alert("Chọn sản phẩm");
                                     return;
                                 }
+
+                                const selectedItems = cart.filter(item =>
+                                    selected.includes(item.id)
+                                );
+
+                                localStorage.setItem("checkout_items", JSON.stringify(selectedItems));
+
                                 navigate("/checkout");
                             }}
                         >
