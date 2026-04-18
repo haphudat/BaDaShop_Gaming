@@ -99,46 +99,63 @@ function Navbar({ setSearch, setCategory, cart }) {
                 <div style={{ position: "relative" }}>
 
                     {user ? (
-                        <div>
-                            <span>
-                                <i className="fa-solid fa-user"></i> {user.username}
-                            </span>
+                        <div style={{ position: "relative" }}>
 
-                            <div
-                                style={{ cursor: "pointer", color: "red" }}
-                                onClick={() => {
-                                    localStorage.removeItem("user");
-                                    window.location.reload();
-                                }}>Logout
-                            </div>
+        <span
+            style={{ cursor: "pointer" }}
+            onClick={() => setShowMenu(!showMenu)}
+        >
+            <i className="fa-solid fa-user"></i> {user.username}
+        </span>
+
+                            {/* DROPDOWN */}
+                            {showMenu && (
+                                <div
+                                    style={{
+                                        position: "absolute",
+                                        top: "35px",
+                                        right: 0,
+                                        background: "#fff",
+                                        border: "1px solid #ccc",
+                                        borderRadius: "5px",
+                                        width: "180px",
+                                        zIndex: 1000
+                                    }}
+                                >
+
+                                    <div
+                                        style={{ padding: "10px", cursor: "pointer" }}
+                                        onClick={() => navigate("/profile")}
+                                    >
+                                        Tài Khoản Của Tôi
+                                    </div>
+
+                                    <div
+                                        style={{ padding: "10px", cursor: "pointer" }}
+                                        onClick={() => navigate("/orders")}
+                                    >
+                                        Đơn Mua
+                                    </div>
+
+                                    <div
+                                        style={{ padding: "10px", cursor: "pointer", color: "red" }}
+                                        onClick={() => {
+                                            localStorage.removeItem("user");
+                                            localStorage.removeItem("cart");
+                                            navigate("/login");
+                                        }}
+                                    >
+                                        Đăng Xuất
+                                    </div>
+
+                                </div>
+                            )}
+
                         </div>
                     ) : (
                         <span style={{ cursor: "pointer" }} onClick={() => navigate("/login")}>
-                            <i className="fa-solid fa-user"></i> Login
-                        </span>
-                    )}
-
-                    {showMenu && (
-                        <div
-                            style={{
-                                position: "absolute",
-                                top: "30px",
-                                right: 0,
-                                background: "#fff",
-                                border: "1px solid #ccc",
-                                borderRadius: "5px",
-                                width: "150px"
-                            }}>
-
-                            <div
-                                style={{ padding: "10px", cursor: "pointer" }}
-                                onClick={() => navigate("/login")}>Đăng nhập</div>
-
-                            <div
-                                style={{ padding: "10px", cursor: "pointer" }}
-                                onClick={() => navigate("/register")}>Đăng ký</div>
-
-                        </div>
+        <i className="fa-solid fa-user"></i> Login
+    </span>
                     )}
 
                 </div>

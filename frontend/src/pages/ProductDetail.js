@@ -63,6 +63,41 @@ function ProductDetail({cart, setCart }) {
         alert("Đã thêm vào giỏ!");
     };
 
+    const handleBuyNow = () => {
+
+        const user = JSON.parse(localStorage.getItem("user"));
+
+        if (!user) {
+            alert("Vui lòng đăng nhập!");
+            navigate("/login");
+            return;
+        }
+
+        // 👉 kiểm tra stock giống addToCart
+        const existing = cart.find(item => item.id === product.id);
+        const currentQty = existing ? existing.quantity : 0;
+        const newTotal = currentQty + quantity;
+
+        if (newTotal > product.stock) {
+            alert("Vượt quá số lượng trong kho!");
+            return;
+        }
+
+        //Tạo 1 san phẩm
+        const item = [{
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            quantity: quantity
+        }];
+
+        // Chuyển
+        localStorage.setItem("checkout_items", JSON.stringify(item));
+
+        navigate("/checkout");
+    };
+
     if (!product) return <h2 className="mt-4">Đang tải...</h2>;
 
     return (
@@ -139,9 +174,9 @@ function ProductDetail({cart, setCart }) {
                             🛒 Thêm vào giỏ
                         </button>
 
-                        <button className="btn btn-danger px-4">
-                            ⚡ Mua ngay
-                        </button>
+                        <button
+                            className="btn btn-danger px-4"
+                            onClick={handleBuyNow}>Mua ngay</button>
 
                     </div>
 
