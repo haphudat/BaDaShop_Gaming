@@ -17,16 +17,21 @@ import Register from "./pages/Register";
 function App() {
     const [category, setCategory] = useState("");
 
+    const user = JSON.parse(localStorage.getItem("user"));
+    const cartKey = user ? `cart_${user.id}` : "cart_guest";
+
     const [cart, setCart] = useState(() => {
-        const savedCart = localStorage.getItem("cart");
+        const savedCart = localStorage.getItem(cartKey);
         return savedCart ? JSON.parse(savedCart) : [];
     });
 
     const [search, setSearch] = useState("");
 
     useEffect(() => {
-        localStorage.setItem("cart", JSON.stringify(cart));
-    }, [cart]);
+        if (user) {
+            localStorage.setItem(`cart_${user.id}`, JSON.stringify(cart));
+        }
+    }, [cart, user]);
 
     return (
         <BrowserRouter>

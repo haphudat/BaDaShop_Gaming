@@ -1,11 +1,11 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
 function ProductDetail({ setCart }) {
 
     const { id } = useParams();
-
+    const navigate = useNavigate();
     const [product, setProduct] = useState(null);
     const [quantity, setQuantity] = useState(1);
 
@@ -23,7 +23,21 @@ function ProductDetail({ setCart }) {
 
     // Thêm vô giỏ
     const handleAddToCart = () => {
+
+        const user = JSON.parse(localStorage.getItem("user"));
+
+        // login
+        if (!user) {
+            alert("Vui lòng đăng nhập!");
+
+            // chuển trang login
+            navigate("/login");
+
+            return;
+        }
+
         setCart(prev => {
+
             const existing = prev.find(item => item.id === product.id);
 
             if (existing) {
