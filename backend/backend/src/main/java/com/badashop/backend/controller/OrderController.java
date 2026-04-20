@@ -12,7 +12,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/orders")
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:3000")
 public class OrderController {
 
     @Autowired
@@ -21,10 +21,43 @@ public class OrderController {
     @Autowired
     private OrderItemRepository orderItemRepository;
 
-    // Tạo Order
+    // GET ALL
+    @GetMapping
+    public List<Order> getAllOrders() {
+        return orderRepository.findAll();
+    }
+
+    // GET BY ID
+    @GetMapping("/{id}")
+    public Order getOrderById(@PathVariable Long id) {
+        return orderRepository.findById(id).orElse(null);
+    }
+
+    // GET FULL (order + items)
+    @GetMapping("/full")
+    public List<Map<String, Object>> getOrdersFull() {
+        List<Order> orders = orderRepository.findAll();
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (Order order : orders) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("order", order);
+
+            List<OrderItem> items = orderItemRepository.findAll()
+                    .stream()
+                    .filter(i -> i.getOrderId().equals(order.getId()))
+                    .toList();
+
+            map.put("items", items);
+            result.add(map);
+        }
+
+        return result;
+    }
+
+    // CREATE
     @PostMapping
     public String createOrder(@RequestBody Map<String, Object> data) {
-
         Order order = new Order();
         order.setName((String) data.get("name"));
         order.setPhone((String) data.get("phone"));
@@ -34,51 +67,32 @@ public class OrderController {
 
         Order savedOrder = orderRepository.save(order);
 
-        List<Map<String, Object>> items =
-                (List<Map<String, Object>>) data.get("items");
-
+        List<Map<String, Object>> items = (List<Map<String, Object>>) data.get("items");
         for (Map<String, Object> item : items) {
-
             OrderItem oi = new OrderItem();
             oi.setOrderId(savedOrder.getId());
             oi.setProductId(Long.parseLong(item.get("id").toString()));
             oi.setQuantity(Integer.parseInt(item.get("quantity").toString()));
             oi.setPrice(Double.parseDouble(item.get("price").toString()));
-
             orderItemRepository.save(oi);
         }
 
         return "Đặt hàng thành công";
     }
 
-    @GetMapping
-    public List<Order> getAllOrders() {
-        return orderRepository.findAll();
+    // CẬP NHẬT TRẠNG THÁI
+    @PutMapping("/{id}/status")
+    public Order updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        Order order = orderRepository.findById(id).orElse(null);
+        if (order == null) return null;
+        order.setStatus(body.get("status"));
+        return orderRepository.save(order);
     }
 
-    // Order, Item
-    @GetMapping("/full")
-    public List<Map<String, Object>> getOrdersFull() {
-
-        List<Order> orders = orderRepository.findAll();
-        List<Map<String, Object>> result = new ArrayList<>();
-
-        for (Order order : orders) {
-
-            Map<String, Object> map = new HashMap<>();
-            map.put("order", order);
-
-            // lấy item
-            List<OrderItem> items = orderItemRepository.findAll()
-                    .stream()
-                    .filter(i -> i.getOrderId().equals(order.getId()))
-                    .toList();
-
-            map.put("items", items);
-
-            result.add(map);
-        }
-
-        return result;
+    // DELETE
+    @DeleteMapping("/{id}")
+    public String deleteOrder(@PathVariable Long id) {
+        orderRepository.deleteById(id);
+        return "Xóa đơn hàng thành công";
     }
 }
