@@ -16,6 +16,13 @@ import Register from "./pages/Register";
 import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
 import Profile from "./pages/Profile";
+import ProductsAdmin from "./pages/admin/ProductsAdmin";
+import CategoriesAdmin from "./pages/admin/CategoriesAdmin";
+import OrdersAdmin from "./pages/admin/OrdersAdmin";
+import UsersAdmin from "./pages/admin/UsersAdmin";
+import ReviewsAdmin from "./pages/admin/ReviewsAdmin";
+import PromotionsAdmin from "./pages/admin/PromotionsAdmin";
+import StatisticsAdmin from "./pages/admin/StatisticsAdmin";
 
 function App() {
     const [category, setCategory] = useState("");
@@ -39,11 +46,11 @@ function App() {
     return (
         <BrowserRouter>
 
-            <Navbar setSearch={setSearch} setCategory={setCategory} cart={cart}/>
+            <Navbar setSearch={setSearch} setCategory={setCategory} cart={cart} />
 
             <Routes>
                 <Route path="/" element={<Home search={search} category={category} />} />
-                <Route path="/product/:id" element={<ProductDetail cart={cart} setCart={setCart} />}/>
+                <Route path="/product/:id" element={<ProductDetail cart={cart} setCart={setCart} />} />
                 <Route path="/cart" element={<Cart cart={cart} setCart={setCart} />} />
                 <Route path="/shop" element={<Shop search={search} category={category} />} />
                 <Route path="/about" element={<About />} />
@@ -52,10 +59,18 @@ function App() {
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/checkout" element={<Checkout cart={cart}/>} />
+                <Route path="/checkout" element={<Checkout cart={cart} />} />
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/admin/products" element={<ProductsAdmin />} />
+                <Route path="/admin/categories" element={<CategoriesAdmin />} />
+                <Route path="/admin/orders" element={<OrdersAdmin />} />
+                <Route path="/admin/users" element={<UsersAdmin />} />
+                <Route path="/admin/reviews" element={<ReviewsAdmin />} />
+                <Route path="/admin/promotions" element={<PromotionsAdmin />} />
+                <Route path="/admin/statistics" element={<StatisticsAdmin />} />
             </Routes>
+
             <Footer />
 
         </BrowserRouter>
