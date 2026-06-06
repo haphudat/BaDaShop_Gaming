@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const API = "http://localhost:8080/api/statistics";
+const API = "http://localhost:8081/api/statistics";
 
 const STATUS_LABEL = {
     pending: { label: "Chờ xử lý", color: "#ffc107" },

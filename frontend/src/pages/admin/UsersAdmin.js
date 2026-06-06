@@ -7,7 +7,7 @@ function UsersAdmin() {
 
     // Load danh sách users
     useEffect(() => {
-        fetch("http://localhost:8080/api/users")
+        fetch("http://localhost:8081/api/users")
             .then(res => res.json())
             .then(data => setUsers(data));
     }, []);
@@ -15,13 +15,13 @@ function UsersAdmin() {
     // Xóa user
     const handleDelete = (id) => {
         if (!window.confirm("Xóa user này?")) return;
-        fetch(`http://localhost:8080/api/users/${id}`, { method: "DELETE" })
+        fetch(`http://localhost:8081/api/users/${id}`, { method: "DELETE" })
             .then(() => setUsers(users.filter(u => u.id !== id)));
     };
 
     // Đổi role
     const handleRoleChange = (id, newRole) => {
-        fetch(`http://localhost:8080/api/users/${id}/role`, {
+        fetch(`http://localhost:8081/api/users/${id}/role`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ role: newRole }),
@@ -96,9 +96,7 @@ function UsersAdmin() {
                         filtered.map(u => (
                             <tr key={u.id}>
                                 <td>{u.id}</td>
-                                <td>
-                                    <strong>{u.username}</strong>
-                                </td>
+                                <td><strong>{u.username}</strong></td>
                                 <td>{u.name || "—"}</td>
                                 <td>{u.email || "—"}</td>
                                 <td>{u.phone || "—"}</td>
