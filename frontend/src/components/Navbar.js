@@ -138,9 +138,8 @@ function Navbar({ setSearch, setCategory, cart }) {
                                     style={{ color: "red", cursor: "pointer" }}
                                     onClick={() => {
                                         localStorage.removeItem("user");
-                                        localStorage.removeItem("cart");
-                                        navigate("/login");
                                         setShowMenu(false);
+                                        window.location.reload();
                                     }}
                                 >
                                     Đăng xuất
