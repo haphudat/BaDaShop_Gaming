@@ -12,6 +12,9 @@ function CategoriesAdmin() {
     const [form, setForm] = useState(emptyForm);
     const [search, setSearch] = useState("");
     const [msg, setMsg] = useState(null);
+    const [products, setProducts] = useState([]);
+    const [showProducts, setShowProducts] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState("");
 
     useEffect(() => { fetchData(); }, []);
 
@@ -65,6 +68,25 @@ function CategoriesAdmin() {
             fetchData();
         } catch {
             setMsg({ type: "error", text: "Lỗi khi xóa!" });
+        }
+    };
+    const handleViewProducts = async (categoryName) => {
+        try {
+            const res = await fetch(
+                `http://localhost:8081/api/products/category/${categoryName}`
+            );
+
+            const data = await res.json();
+
+            setProducts(data);
+            setSelectedCategory(categoryName);
+            setShowProducts(true);
+
+        } catch {
+            setMsg({
+                type: "error",
+                text: "Không tải được sản phẩm!"
+            });
         }
     };
 
@@ -122,9 +144,18 @@ function CategoriesAdmin() {
                                         <td style={tdStyle}>{c.name}</td>
                                         <td style={tdStyle}>{c.description}</td>
                                         <td style={tdStyle}>
-                                            <button onClick={() => openEdit(c)} style={btnStyle("#0d6efd", "sm")}>Sửa</button>
+
+                                            <button
+                                                onClick={() => handleViewProducts(c.name)}
+                                                style={btnStyle("#198754", "sm")}>Xem sản phẩm</button>
                                             {" "}
-                                            <button onClick={() => handleDelete(c.id)} style={btnStyle("#dc3545", "sm")}>Xóa</button>
+                                            <button
+                                                onClick={() => openEdit(c)}
+                                                style={btnStyle("#0d6efd", "sm")}>Sửa</button>
+                                            {" "}
+                                            <button
+                                                onClick={() => handleDelete(c.id)}
+                                                style={btnStyle("#dc3545", "sm")}>Xóa</button>
                                         </td>
                                     </tr>
                                 ))}
@@ -133,6 +164,74 @@ function CategoriesAdmin() {
                     </div>
                 )}
             </div>
+
+            {showProducts && (
+                <div style={overlayStyle}>
+                    <div style={{
+                        background: "#fff",
+                        borderRadius: "10px",
+                        padding: "24px",
+                        width: "700px",
+                        maxHeight: "80vh",
+                        overflowY: "auto"
+                    }}>
+
+                        <h4>
+                            📦 Sản phẩm thuộc danh mục: {selectedCategory}
+                        </h4>
+
+                        {products.length === 0 ? (
+                            <p>Không có sản phẩm nào.</p>
+                        ) : (
+                            <table
+                                style={{
+                                    width: "100%",
+                                    borderCollapse: "collapse"
+                                }}
+                            >
+                                <thead>
+                                <tr>
+                                    <th style={thStyle}>ID</th>
+                                    <th style={thStyle}>Tên sản phẩm</th>
+                                    <th style={thStyle}>Hãng</th>
+                                    <th style={thStyle}>Giá</th>
+                                    <th style={thStyle}>Tồn kho</th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                {products.map(product => (
+                                    <tr key={product.id}>
+                                        <td style={tdStyle}>{product.id}</td>
+                                        <td style={tdStyle}>{product.name}</td>
+                                        <td style={tdStyle}>{product.brand}</td>
+                                        <td style={tdStyle}>
+                                            {Number(product.price).toLocaleString()}đ
+                                        </td>
+                                        <td style={tdStyle}>{product.stock}</td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        )}
+
+                        <div
+                            style={{
+                                marginTop: "16px",
+                                textAlign: "right"
+                            }}
+                        >
+                            <button
+                                onClick={() => setShowProducts(false)}
+                                style={btnStyle("#6c757d")}
+                            >
+                                Đóng
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            )}
 
             {/* MODAL */}
             {showModal && (
