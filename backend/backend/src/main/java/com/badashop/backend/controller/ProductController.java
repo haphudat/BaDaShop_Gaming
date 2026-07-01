@@ -22,7 +22,13 @@ public class ProductController {
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
+    // GET PRODUCTS BY CATEGORY
+    @GetMapping("/category/{category}")
+    public List<Product> getProductsByCategory(
+            @PathVariable String category) {
 
+        return productRepository.findByCategory(category);
+    }
     // GET BY ID
     @GetMapping("/{id}")
     public Product getProductById(@PathVariable Long id) {

@@ -21,8 +21,22 @@ function Home({ search, category }) {
         p.name.toLowerCase().includes(search.toLowerCase()) &&
         (category === "" || p.category === category)
     );
+    const featuredProducts = products.slice(0, 8);
     return (
         <div className="container mt-4">
+            <h3 className="mt-4 mb-3">🔥 Sản phẩm nổi bật</h3>
+
+            <div className="row">
+                {featuredProducts.map(product => (
+                    <ProductCard
+                        key={product.id}
+                        id={product.id}
+                        name={product.name}
+                        price={product.price}
+                        image={product.image}
+                    />
+                ))}
+            </div>
 
             {/* Banner */}
             <div className="bg-white p-5 rounded shadow-sm">

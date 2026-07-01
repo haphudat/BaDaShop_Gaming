@@ -15,6 +15,7 @@ const emptyForm = {
 
 function ProductsAdmin() {
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [editItem, setEditItem] = useState(null);
@@ -22,7 +23,15 @@ function ProductsAdmin() {
     const [search, setSearch] = useState("");
     const [msg, setMsg] = useState(null);
 
-    useEffect(() => { fetchData(); }, []);
+    useEffect(() => {
+        fetchData();
+
+        fetch("http://localhost:8081/api/categories")
+            .then(res => res.json())
+            .then(data => setCategories(data))
+            .catch(err => console.log(err));
+
+    }, []);
 
     const fetchData = async () => {
         setLoading(true);
@@ -164,11 +173,32 @@ function ProductsAdmin() {
                         ].map(({ label, key }) => (
                             <div key={key} style={{ marginBottom: "12px" }}>
                                 <label style={{ display: "block", marginBottom: "4px", fontWeight: 600 }}>{label}</label>
-                                <input
-                                    value={form[key] || ""}
-                                    onChange={e => setForm({ ...form, [key]: e.target.value })}
-                                    style={inputStyle}
-                                />
+                                {
+                                    key === "category" ? (
+                                        <select
+                                            value={form.category || ""}
+                                            onChange={e => setForm({ ...form, category: e.target.value })}
+                                            style={inputStyle}
+                                        >
+                                            <option value="">-- Chọn danh mục --</option>
+
+                                            {categories.map(category => (
+                                                <option
+                                                    key={category.id}
+                                                    value={category.name}
+                                                >
+                                                    {category.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <input
+                                            value={form[key] || ""}
+                                            onChange={e => setForm({ ...form, [key]: e.target.value })}
+                                            style={inputStyle}
+                                        />
+                                    )
+                                }
                             </div>
                         ))}
                         <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", marginTop: "16px" }}>

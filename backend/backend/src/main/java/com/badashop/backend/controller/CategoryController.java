@@ -4,7 +4,7 @@ import com.badashop.backend.model.Category;
 import com.badashop.backend.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
+import com.badashop.backend.repository.ProductRepository;
 import java.util.List;
 
 @RestController
@@ -14,6 +14,9 @@ public class CategoryController {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     // GET ALL
     @GetMapping
@@ -48,7 +51,24 @@ public class CategoryController {
     // DELETE
     @DeleteMapping("/{id}")
     public String deleteCategory(@PathVariable Long id) {
+
+        Category category = categoryRepository.findById(id).orElse(null);
+
+        if (category == null) {
+            return "Danh mục không tồn tại";
+        }
+
+        long totalProducts =
+                productRepository.countByCategory(category.getName());
+
+        if (totalProducts > 0) {
+            return "Không thể xóa danh mục vì còn "
+                    + totalProducts +
+                    " sản phẩm";
+        }
+
         categoryRepository.deleteById(id);
+
         return "Xóa danh mục thành công";
     }
 }
