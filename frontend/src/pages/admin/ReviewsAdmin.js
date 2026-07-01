@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const API = "http://localhost:8080/api/reviews";
+const API = "http://localhost:8081/api/reviews";
 
 const STARS = [5, 4, 3, 2, 1];
 
@@ -35,6 +35,39 @@ function ReviewsAdmin() {
         await fetch(`${API}/${id}`, { method: "DELETE" });
         showMsg("success", "Đã xóa đánh giá!");
         setList(list.filter(r => r.id !== id));
+    };
+
+    const handleReply = async (review) => {
+
+        try {
+
+            const response = await fetch(
+                `${API}/${review.id}/reply`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        reply: review.reply
+                    })
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error();
+            }
+
+            showMsg("success", "Đã lưu phản hồi");
+
+            fetchData();
+
+        } catch {
+
+            showMsg("error", "Không thể lưu phản hồi");
+
+        }
+
     };
 
     const renderStars = (rating) =>
@@ -117,11 +150,29 @@ function ReviewsAdmin() {
                     <div style={{ background: "#fff", borderRadius: "10px", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", overflow: "hidden" }}>
                         <table style={{ width: "100%", borderCollapse: "collapse" }}>
                             <thead style={{ background: "#f5a623" }}>
-                                <tr>
-                                    {["ID", "Sản phẩm", "Người dùng", "Đánh giá", "Nội dung", "Thời gian", ""].map(h => (
-                                        <th key={h} style={{ padding: "12px 14px", textAlign: "left", fontWeight: 700 }}>{h}</th>
-                                    ))}
-                                </tr>
+                            <tr>
+                                {[
+                                    "ID",
+                                    "Sản phẩm",
+                                    "Người dùng",
+                                    "Đánh giá",
+                                    "Đánh giá của khách",
+                                    "Phản hồi của shop",
+                                    "Thời gian",
+                                    "Thao tác"
+                                ].map(h => (
+                                    <th
+                                        key={h}
+                                        style={{
+                                            padding: "12px 14px",
+                                            textAlign: "left",
+                                            fontWeight: 700
+                                        }}
+                                    >
+                                        {h}
+                                    </th>
+                                ))}
+                            </tr>
                             </thead>
                             <tbody>
                                 {filtered.length === 0 ? (
@@ -130,23 +181,86 @@ function ReviewsAdmin() {
                                     <tr key={r.id} style={{ background: i % 2 === 0 ? "#fff" : "#fafafa" }}>
                                         <td style={td}>{r.id}</td>
                                         <td style={td}>
-                                            <span style={{ fontWeight: 600 }}>{r.product?.name || "—"}</span>
+                                            <a
+                                                href={`/product/${r.product?.id}`}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                style={{
+                                                    fontWeight: 600,
+                                                    color: "#0d6efd",
+                                                    textDecoration: "none"
+                                                }}
+                                            >
+                                                {r.product?.name}
+                                            </a>
                                         </td>
                                         <td style={td}>{r.user?.username || "—"}</td>
                                         <td style={td}>{renderStars(r.rating)}</td>
-                                        <td style={{ ...td, maxWidth: "280px" }}>
-                                            <span style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                                                {r.comment || "—"}
-                                            </span>
+                                        {/* Đánh giá của khách */}
+                                        <td style={{ ...td, minWidth: "220px" }}>
+                                            <div
+                                                style={{
+                                                    whiteSpace: "pre-wrap",
+                                                    wordBreak: "break-word"
+                                                }}
+                                            >
+                                                {r.comment || "Không có nội dung"}
+                                            </div>
                                         </td>
+
+                                        {/* Phản hồi của shop */}
+                                        <td style={{ ...td, minWidth: "320px" }}>
+
+                                            <div
+                                                style={{
+                                                    fontWeight: "bold",
+                                                    color: "#f5a623",
+                                                    marginBottom: "8px"
+                                                }}
+                                            >
+                                                💬 Phản hồi của BaDaShop
+                                            </div>
+
+                                            <textarea
+                                                className="form-control"
+                                                rows="2"
+                                                defaultValue={r.reply || ""}
+                                                placeholder="Nhập phản hồi..."
+                                                onChange={(e) => {
+                                                    r.reply = e.target.value;
+                                                }}
+                                            />
+
+                                            <button
+                                                className="btn btn-warning btn-sm mt-2"
+                                                onClick={() => handleReply(r)}
+                                            >
+                                                💾 Lưu phản hồi
+                                            </button>
+
+                                        </td>
+
                                         <td style={{ ...td, whiteSpace: "nowrap", fontSize: "13px", color: "#666" }}>
                                             {r.createdAt ? new Date(r.createdAt).toLocaleString("vi-VN") : "—"}
                                         </td>
                                         <td style={td}>
-                                            <button onClick={() => handleDelete(r.id)}
-                                                style={{ padding: "4px 10px", background: "#dc3545", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: 600, fontSize: "12px" }}>
+
+                                            <button
+                                                onClick={() => handleDelete(r.id)}
+                                                style={{
+                                                    padding: "4px 10px",
+                                                    background: "#dc3545",
+                                                    color: "#fff",
+                                                    border: "none",
+                                                    borderRadius: "6px",
+                                                    cursor: "pointer",
+                                                    fontWeight: 600,
+                                                    fontSize: "12px"
+                                                }}
+                                            >
                                                 🗑 Xóa
                                             </button>
+
                                         </td>
                                     </tr>
                                 ))}
@@ -155,6 +269,7 @@ function ReviewsAdmin() {
                     </div>
                 )}
             </div>
+
         </div>
     );
 }

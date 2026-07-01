@@ -9,10 +9,20 @@ function ProductDetail({cart, setCart }) {
     const [product, setProduct] = useState(null);
     const [quantity, setQuantity] = useState(1);
 
+    // REVIEW
+    const [reviews, setReviews] = useState([]);
+    const [rating, setRating] = useState(5);
+    const [comment, setComment] = useState("");
+
     // Gọi API
     useEffect(() => {
         axios.get(`http://localhost:8081/api/products/${id}`)
             .then(res => setProduct(res.data))
+            .catch(err => console.log(err));
+    }, [id]);
+    useEffect(() => {
+        axios.get(`http://localhost:8081/api/reviews/product/${id}`)
+            .then(res => setReviews(res.data))
             .catch(err => console.log(err));
     }, [id]);
 
@@ -96,6 +106,51 @@ function ProductDetail({cart, setCart }) {
         localStorage.setItem("checkout_items", JSON.stringify(item));
 
         navigate("/checkout");
+    };
+    const handleReview = async () => {
+
+        const user = JSON.parse(localStorage.getItem("user"));
+
+        if (!user) {
+            alert("Vui lòng đăng nhập để đánh giá!");
+            navigate("/login");
+            return;
+        }
+
+        if (comment.trim() === "") {
+            alert("Vui lòng nhập nội dung đánh giá!");
+            return;
+        }
+
+        try {
+
+            await axios.post("http://localhost:8081/api/reviews", {
+                productId: product.id,
+                userId: user.id,
+                rating: rating,
+                comment: comment
+            });
+
+            alert("Đánh giá thành công!");
+
+            // load lại review
+            const res = await axios.get(
+                `http://localhost:8081/api/reviews/product/${id}`
+            );
+
+            setReviews(res.data);
+
+            setComment("");
+            setRating(5);
+
+        } catch (err) {
+
+            console.log(err);
+
+            alert("Không thể gửi đánh giá!");
+
+        }
+
     };
 
     if (!product) return <h2 className="mt-4">Đang tải...</h2>;
@@ -181,6 +236,108 @@ function ProductDetail({cart, setCart }) {
                     </div>
 
                 </div>
+
+            </div>
+
+            {/* REVIEW */}
+            <div className="mt-5">
+                <div className="card p-3 mb-4">
+
+                    <h5>Viết đánh giá</h5>
+
+                    <div className="mb-3">
+                        <label className="form-label">Số sao</label>
+
+                        <select
+                            className="form-select"
+                            value={rating}
+                            onChange={(e) => setRating(Number(e.target.value))}
+                        >
+                            <option value={5}>★★★★★ (5 sao)</option>
+                            <option value={4}>★★★★☆ (4 sao)</option>
+                            <option value={3}>★★★☆☆ (3 sao)</option>
+                            <option value={2}>★★☆☆☆ (2 sao)</option>
+                            <option value={1}>★☆☆☆☆ (1 sao)</option>
+                        </select>
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="form-label">Nội dung</label>
+
+                        <textarea
+                            className="form-control"
+                            rows="4"
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            placeholder="Nhập đánh giá của bạn..."
+                        />
+                    </div>
+
+                    <button
+                        className="btn btn-warning"
+                        onClick={handleReview}
+                    >
+                        Gửi đánh giá
+                    </button>
+
+                </div>
+
+                <h3>Đánh giá sản phẩm</h3>
+
+                {reviews.length === 0 ? (
+
+                    <p>Chưa có đánh giá nào.</p>
+
+                ) : (
+
+                    reviews.map(review => (
+
+                        <div
+                            key={review.id}
+                            className="border rounded p-3 mb-3"
+                        >
+
+                            <h6>
+                                {review.user?.username}
+                            </h6>
+
+                            <div style={{ color: "#f5a623" }}>
+                                {"★".repeat(review.rating)}
+                                {"☆".repeat(5 - review.rating)}
+                            </div>
+
+                            <p className="mt-2">
+                                {review.comment}
+                            </p>
+
+                            {/* Phản hồi của shop */}
+                            {review.reply && (
+                                <div
+                                    style={{
+                                        background: "#f8f9fa",
+                                        borderLeft: "4px solid #f5a623",
+                                        padding: "10px",
+                                        marginTop: "10px",
+                                        borderRadius: "6px"
+                                    }}
+                                >
+                                    <strong>💬 Phản hồi từ BaDaShop</strong>
+
+                                    <p style={{ margin: "6px 0 0" }}>
+                                        {review.reply}
+                                    </p>
+                                </div>
+                            )}
+
+                            <small className="text-muted">
+                                {new Date(review.createdAt).toLocaleString("vi-VN")}
+                            </small>
+
+                        </div>
+
+                    ))
+
+                )}
 
             </div>
         </div>
