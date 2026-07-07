@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 
 const API = "http://localhost:8081/api/reviews";
 
+const STARS = [5, 4, 3, 2, 1];
+
 function ReviewsAdmin() {
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -35,7 +37,36 @@ function ReviewsAdmin() {
         }
     };
 
-    const renderStars = (rating) => "★".repeat(rating || 0) + "☆".repeat(5 - (rating || 0));
+    const handleReply = async (review) => {
+        try {
+            const response = await fetch(
+                `${API}/${review.id}/reply`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        reply: review.reply
+                    })
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error();
+            }
+
+            setMsg({ type: "success", text: "Đã lưu phản hồi" });
+            fetchData();
+        } catch {
+            setMsg({ type: "error", text: "Không thể lưu phản hồi" });
+        }
+    };
+
+    const renderStars = (rating) =>
+        Array.from({ length: 5 }, (_, i) => (
+            <span key={i} style={{ color: i < rating ? "#f5a623" : "#ddd", fontSize: "16px" }}>★</span>
+        ));
 
     const filtered = reviews.filter(r => {
         const matchStar = filterStar ? r.rating === Number(filterStar) : true;
@@ -59,7 +90,7 @@ function ReviewsAdmin() {
                         style={{ padding: "8px 14px", borderRadius: "6px", border: "1px solid #ddd" }}
                     >
                         <option value="">Tất cả sao</option>
-                        {[5, 4, 3, 2, 1].map(s => <option key={s} value={s}>{s} sao</option>)}
+                        {STARS.map(s => <option key={s} value={s}>{s} sao</option>)}
                     </select>
                 </div>
 
@@ -89,30 +120,71 @@ function ReviewsAdmin() {
                         <table style={{ width: "100%", borderCollapse: "collapse" }}>
                             <thead style={{ background: "#f5a623" }}>
                                 <tr>
-                                    {["ID", "Người dùng", "Sản phẩm", "Đánh giá", "Nội dung", "Ngày", "Thao tác"].map(h => (
+                                    {[
+                                        "ID",
+                                        "Sản phẩm",
+                                        "Người dùng",
+                                        "Đánh giá",
+                                        "Đánh giá của khách",
+                                        "Phản hồi của shop",
+                                        "Thời gian",
+                                        "Thao tác"
+                                    ].map(h => (
                                         <th key={h} style={thStyle}>{h}</th>
                                     ))}
                                 </tr>
                             </thead>
                             <tbody>
                                 {filtered.length === 0 ? (
-                                    <tr><td colSpan={7} style={{ textAlign: "center", padding: "24px", color: "#888" }}>Không có đánh giá</td></tr>
+                                    <tr><td colSpan={8} style={{ textAlign: "center", padding: "24px", color: "#888" }}>Không có đánh giá</td></tr>
                                 ) : filtered.map((r, i) => (
                                     <tr key={r.id} style={{ background: i % 2 === 0 ? "#fff" : "#fafafa" }}>
                                         <td style={tdStyle}>{r.id}</td>
+                                        <td style={tdStyle}>
+                                            <a
+                                                href={`/product/${r.product?.id}`}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                style={{ fontWeight: 600, color: "#0d6efd", textDecoration: "none" }}
+                                            >
+                                                {r.product?.name}
+                                            </a>
+                                        </td>
                                         <td style={tdStyle}>{r.user?.username || "—"}</td>
-                                        <td style={tdStyle}>{r.product?.name || "—"}</td>
-                                        <td style={tdStyle}>
-                                            <span style={{ color: "#f5a623", fontSize: "16px" }}>{renderStars(r.rating)}</span>
+                                        <td style={tdStyle}>{renderStars(r.rating)}</td>
+
+                                        {/* Đánh giá của khách */}
+                                        <td style={{ ...tdStyle, minWidth: "220px" }}>
+                                            <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                                                {r.comment || "Không có nội dung"}
+                                            </div>
                                         </td>
-                                        <td style={{ ...tdStyle, maxWidth: "220px" }}>
-                                            <span title={r.comment} style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                                {r.comment}
-                                            </span>
+
+                                        {/* Phản hồi của shop */}
+                                        <td style={{ ...tdStyle, minWidth: "320px" }}>
+                                            <div style={{ fontWeight: "bold", color: "#f5a623", marginBottom: "8px" }}>
+                                                💬 Phản hồi của BaDaShop
+                                            </div>
+                                            <textarea
+                                                className="form-control"
+                                                rows="2"
+                                                defaultValue={r.reply || ""}
+                                                placeholder="Nhập phản hồi..."
+                                                onChange={(e) => { r.reply = e.target.value; }}
+                                            />
+                                            <button
+                                                className="btn btn-warning btn-sm mt-2"
+                                                onClick={() => handleReply(r)}
+                                            >
+                                                💾 Lưu phản hồi
+                                            </button>
                                         </td>
-                                        <td style={tdStyle}>{r.createdAt ? new Date(r.createdAt).toLocaleDateString("vi-VN") : "—"}</td>
+
+                                        <td style={{ ...tdStyle, whiteSpace: "nowrap", fontSize: "13px", color: "#666" }}>
+                                            {r.createdAt ? new Date(r.createdAt).toLocaleString("vi-VN") : "—"}
+                                        </td>
                                         <td style={tdStyle}>
-                                            <button onClick={() => handleDelete(r.id)} style={btnStyle("#dc3545", "sm")}>Xóa</button>
+                                            <button onClick={() => handleDelete(r.id)} style={btnStyle("#dc3545", "sm")}>🗑 Xóa</button>
                                         </td>
                                     </tr>
                                 ))}
