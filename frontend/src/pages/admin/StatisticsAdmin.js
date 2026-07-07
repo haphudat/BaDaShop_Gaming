@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
+import axios from "../../axiosConfig";
 
 const API = "http://localhost:8081/api/statistics";
 
 const STATUS_LABEL = {
-    pending: { label: "Chờ xử lý", color: "#ffc107" },
+    pending:   { label: "Chờ xử lý",   color: "#ffc107" },
     confirmed: { label: "Đã xác nhận", color: "#0d6efd" },
-    shipping: { label: "Đang giao", color: "#6f42c1" },
-    delivered: { label: "Đã giao", color: "#198754" },
-    cancelled: { label: "Đã hủy", color: "#dc3545" },
+    shipping:  { label: "Đang giao",   color: "#6f42c1" },
+    delivered: { label: "Đã giao",     color: "#198754" },
+    cancelled: { label: "Đã hủy",      color: "#dc3545" },
 };
 
 function StatisticsAdmin() {
@@ -19,19 +20,21 @@ function StatisticsAdmin() {
 
     useEffect(() => {
         Promise.all([
-            fetch(`${API}/summary`).then(r => r.json()),
-            fetch(`${API}/revenue-by-month`).then(r => r.json()),
-            fetch(`${API}/orders-by-status`).then(r => r.json()),
-            fetch(`${API}/top-products`).then(r => r.json()),
+            axios.get(`${API}/summary`),
+            axios.get(`${API}/revenue-by-month`),
+            axios.get(`${API}/orders-by-status`),
+            axios.get(`${API}/top-products`),
         ]).then(([s, rev, status, top]) => {
-            setSummary(s);
-            setRevenueByMonth(rev);
-            setOrdersByStatus(status);
-            setTopProducts(top);
+            setSummary(s.data);
+            setRevenueByMonth(rev.data);
+            setOrdersByStatus(status.data);
+            setTopProducts(top.data);
         }).finally(() => setLoading(false));
     }, []);
 
-    if (loading || !summary) return <div style={{ padding: "40px", textAlign: "center" }}>Đang tải thống kê...</div>;
+    if (loading || !summary) return (
+        <div style={{ padding: "40px", textAlign: "center" }}>Đang tải thống kê...</div>
+    );
 
     const maxRevenue = Math.max(...revenueByMonth.map(r => r.revenue), 1);
     const totalStatusCount = Object.values(ordersByStatus).reduce((a, b) => a + b, 0);
@@ -159,7 +162,6 @@ function StatisticsAdmin() {
     );
 }
 
-// Helpers
 const formatMoney = (n) => n ? Number(n).toLocaleString("vi-VN") + "đ" : "0đ";
 const formatMoneyShort = (n) => {
     if (!n) return "0";
@@ -168,10 +170,7 @@ const formatMoneyShort = (n) => {
     return n;
 };
 
-const card = {
-    background: "#fff", borderRadius: "12px", padding: "20px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.08)"
-};
+const card = { background: "#fff", borderRadius: "12px", padding: "20px", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" };
 const cardTitle = { margin: "0 0 16px", fontSize: "15px", fontWeight: 700 };
 
 export default StatisticsAdmin;
