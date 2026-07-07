@@ -5,13 +5,10 @@ import axios from "axios";
 function Login() {
 
     const navigate = useNavigate();
-
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
     const handleLogin = async () => {
-
-        // validate
         if (!username || !password) {
             alert("Vui lòng nhập đầy đủ thông tin!");
             return;
@@ -19,18 +16,19 @@ function Login() {
 
         try {
             const res = await axios.post("http://localhost:8081/api/auth/login", {
-                username: username,
-                password: password
+                username,
+                password
             });
 
             if (res.data && res.data.id) {
+                // ✅ Lưu token riêng
+                localStorage.setItem("token", res.data.token);
 
-                // lưu user
-                localStorage.setItem("user", JSON.stringify(res.data));
+                // ✅ Lưu user info (bỏ token ra để gọn)
+                const { token, ...userInfo } = res.data;
+                localStorage.setItem("user", JSON.stringify(userInfo));
 
                 alert("Đăng nhập thành công!");
-
-                // Chuyển trang
                 navigate("/");
 
             } else {
@@ -39,7 +37,7 @@ function Login() {
 
         } catch (err) {
             console.error(err);
-            alert("Lỗi server!");
+            alert("Sai tài khoản hoặc mật khẩu!");
         }
     };
 
@@ -47,7 +45,6 @@ function Login() {
         <div className="container mt-5">
             <div className="row justify-content-center">
                 <div className="col-md-4">
-
                     <div className="card p-4 shadow">
                         <h3 className="text-center mb-3">Đăng nhập</h3>
 
@@ -78,9 +75,7 @@ function Login() {
                             Chưa có tài khoản?{" "}
                             <Link to="/register">Đăng ký</Link>
                         </div>
-
                     </div>
-
                 </div>
             </div>
         </div>
