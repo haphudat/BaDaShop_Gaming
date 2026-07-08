@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import axios from "../../axiosConfig";
 
 const API = "http://localhost:8081/api/orders";
 
@@ -23,9 +24,8 @@ function OrdersAdmin() {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const res = await fetch(API);
-            const data = await res.json();
-            setOrders(data);
+            const res = await axios.get(API);
+            setOrders(res.data);
         } catch {
             setMsg({ type: "error", text: "Không thể kết nối API!" });
         } finally {
@@ -40,11 +40,7 @@ function OrdersAdmin() {
 
     const handleUpdateStatus = async (id, status) => {
         try {
-            await fetch(`${API}/${id}/status`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status })
-            });
+            await axios.put(`${API}/${id}/status`, { status });
             setMsg({ type: "success", text: "Cập nhật trạng thái thành công!" });
             setShowModal(false);
             fetchData();
@@ -56,7 +52,7 @@ function OrdersAdmin() {
     const handleDelete = async (id) => {
         if (!window.confirm("Xác nhận xóa đơn hàng này?")) return;
         try {
-            await fetch(`${API}/${id}`, { method: "DELETE" });
+            await axios.delete(`${API}/${id}`);
             setMsg({ type: "success", text: "Xóa thành công!" });
             fetchData();
         } catch {
@@ -150,7 +146,7 @@ function OrdersAdmin() {
                 )}
             </div>
 
-            {/* MODAL CHI TIẾT + CẬP NHẬT TRẠNG THÁI */}
+            {/* MODAL */}
             {showModal && selected && (
                 <div style={overlayStyle}>
                     <div style={modalStyle}>

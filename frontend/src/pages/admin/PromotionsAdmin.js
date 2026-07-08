@@ -1,14 +1,20 @@
 import { useState, useEffect } from "react";
 
-const API = "http://localhost:8080/api/promotions";
+const API = "http://localhost:8081/api/promotions";
 
 const emptyForm = {
-    code: "", description: "", discountType: "PERCENT",
-    discountValue: "", minOrderValue: "", startDate: "", endDate: "", active: true
+    code: "",
+    description: "",
+    discountType: "PERCENT",
+    discountValue: "",
+    minOrderValue: "",
+    startDate: "",
+    endDate: "",
+    active: true
 };
 
 function PromotionsAdmin() {
-    const [list, setList] = useState([]);
+    const [promotions, setPromotions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [editItem, setEditItem] = useState(null);
@@ -22,25 +28,28 @@ function PromotionsAdmin() {
         setLoading(true);
         try {
             const res = await fetch(API);
-            setList(await res.json());
+            const data = await res.json();
+            setPromotions(data);
         } catch {
-            showMsg("error", "Không thể kết nối API!");
+            setMsg({ type: "error", text: "Không thể kết nối API!" });
         } finally {
             setLoading(false);
         }
     };
 
-    const showMsg = (type, text) => {
-        setMsg({ type, text });
-        setTimeout(() => setMsg(null), 3000);
+    const openAdd = () => {
+        setEditItem(null);
+        setForm(emptyForm);
+        setShowModal(true);
     };
 
-    const openAdd = () => { setEditItem(null); setForm(emptyForm); setShowModal(true); };
-    const openEdit = (item) => { setEditItem(item); setForm({ ...item }); setShowModal(true); };
+    const openEdit = (item) => {
+        setEditItem(item);
+        setForm(item);
+        setShowModal(true);
+    };
 
     const handleSave = async () => {
-        if (!form.code.trim()) return showMsg("error", "Vui lòng nhập mã giảm giá!");
-        if (!form.discountValue) return showMsg("error", "Vui lòng nhập giá trị giảm!");
         try {
             const method = editItem ? "PUT" : "POST";
             const url = editItem ? `${API}/${editItem.id}` : API;
@@ -49,44 +58,47 @@ function PromotionsAdmin() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(form)
             });
-            showMsg("success", editItem ? "Cập nhật thành công!" : "Thêm thành công!");
+            setMsg({ type: "success", text: editItem ? "Cập nhật thành công!" : "Thêm thành công!" });
             setShowModal(false);
             fetchData();
         } catch {
-            showMsg("error", "Lỗi khi lưu!");
+            setMsg({ type: "error", text: "Lỗi khi lưu!" });
+        }
+    };
+
+    const handleToggle = async (id) => {
+        try {
+            await fetch(`${API}/${id}/toggle`, { method: "PUT" });
+            fetchData();
+        } catch {
+            setMsg({ type: "error", text: "Lỗi khi đổi trạng thái!" });
         }
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Xóa khuyến mãi này?")) return;
-        await fetch(`${API}/${id}`, { method: "DELETE" });
-        showMsg("success", "Đã xóa!");
-        fetchData();
+        if (!window.confirm("Xác nhận xóa khuyến mãi này?")) return;
+        try {
+            await fetch(`${API}/${id}`, { method: "DELETE" });
+            setMsg({ type: "success", text: "Xóa thành công!" });
+            fetchData();
+        } catch {
+            setMsg({ type: "error", text: "Lỗi khi xóa!" });
+        }
     };
 
-    const handleToggle = async (id) => {
-        await fetch(`${API}/${id}/toggle`, { method: "PUT" });
-        fetchData();
-    };
-
-    const filtered = list.filter(p =>
+    const filtered = promotions.filter(p =>
         p.code?.toLowerCase().includes(search.toLowerCase()) ||
         p.description?.toLowerCase().includes(search.toLowerCase())
     );
 
-    const formatValue = (p) =>
-        p.discountType === "PERCENT"
-            ? `${p.discountValue}%`
-            : `${Number(p.discountValue).toLocaleString("vi-VN")}đ`;
-
     return (
         <div style={{ padding: "24px", fontFamily: "'Segoe UI', sans-serif", background: "#f8f9fa", minHeight: "100vh" }}>
-            <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+            <div style={{ maxWidth: "1150px", margin: "0 auto" }}>
 
                 {/* HEADER */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-                    <h2 style={{ margin: 0 }}>🎟️ Quản lý khuyến mãi</h2>
-                    <button onClick={openAdd} style={btn("#f5a623")}>+ Thêm mã</button>
+                    <h2 style={{ margin: 0, fontSize: "24px", fontWeight: 700 }}>🎁 Quản lý khuyến mãi</h2>
+                    <button onClick={openAdd} style={btnStyle("#f5a623")}>+ Thêm khuyến mãi</button>
                 </div>
 
                 {/* THÔNG BÁO */}
@@ -95,7 +107,10 @@ function PromotionsAdmin() {
                         padding: "10px 16px", borderRadius: "6px", marginBottom: "16px",
                         background: msg.type === "success" ? "#d4edda" : "#f8d7da",
                         color: msg.type === "success" ? "#155724" : "#721c24"
-                    }}>{msg.text}</div>
+                    }}>
+                        {msg.text}
+                        <button onClick={() => setMsg(null)} style={{ float: "right", background: "none", border: "none", cursor: "pointer" }}>✕</button>
+                    </div>
                 )}
 
                 {/* SEARCH */}
@@ -108,55 +123,48 @@ function PromotionsAdmin() {
 
                 {/* TABLE */}
                 {loading ? <p>Đang tải...</p> : (
-                    <div style={{ background: "#fff", borderRadius: "10px", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", overflow: "hidden" }}>
+                    <div style={{ background: "#fff", borderRadius: "10px", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", overflow: "auto" }}>
                         <table style={{ width: "100%", borderCollapse: "collapse" }}>
                             <thead style={{ background: "#f5a623" }}>
                                 <tr>
-                                    {["Mã", "Mô tả", "Loại", "Giảm", "Đơn tối thiểu", "Từ ngày", "Đến ngày", "Trạng thái", ""].map(h => (
-                                        <th key={h} style={{ padding: "12px 14px", textAlign: "left", fontWeight: 700 }}>{h}</th>
+                                    {["ID", "Mã code", "Mô tả", "Loại giảm", "Giá trị giảm", "Đơn tối thiểu", "Từ ngày", "Đến ngày", "Trạng thái", "Thao tác"].map(h => (
+                                        <th key={h} style={thStyle}>{h}</th>
                                     ))}
                                 </tr>
                             </thead>
                             <tbody>
                                 {filtered.length === 0 ? (
-                                    <tr><td colSpan={9} style={{ textAlign: "center", padding: "24px", color: "#888" }}>Không có dữ liệu</td></tr>
+                                    <tr><td colSpan={10} style={{ textAlign: "center", padding: "24px", color: "#888" }}>Không có khuyến mãi</td></tr>
                                 ) : filtered.map((p, i) => (
                                     <tr key={p.id} style={{ background: i % 2 === 0 ? "#fff" : "#fafafa" }}>
-                                        <td style={td}>
-                                            <strong style={{ background: "#fff3cd", padding: "2px 8px", borderRadius: "4px", fontFamily: "monospace" }}>
-                                                {p.code}
-                                            </strong>
+                                        <td style={tdStyle}>{p.id}</td>
+                                        <td style={tdStyle}><b style={{ color: "#f5a623" }}>{p.code}</b></td>
+                                        <td style={tdStyle}>{p.description}</td>
+                                        <td style={tdStyle}>{p.discountType === "PERCENT" ? "Phần trăm" : "Cố định"}</td>
+                                        <td style={tdStyle}>
+                                            {p.discountType === "PERCENT"
+                                                ? `${p.discountValue}%`
+                                                : `${Number(p.discountValue).toLocaleString()}đ`}
                                         </td>
-                                        <td style={td}>{p.description || "—"}</td>
-                                        <td style={td}>
-                                            <span style={{
-                                                padding: "2px 8px", borderRadius: "4px", fontSize: "12px", fontWeight: 600,
-                                                background: p.discountType === "PERCENT" ? "#cfe2ff" : "#d1e7dd",
-                                                color: p.discountType === "PERCENT" ? "#084298" : "#0f5132"
-                                            }}>
-                                                {p.discountType === "PERCENT" ? "%" : "Cố định"}
-                                            </span>
-                                        </td>
-                                        <td style={{ ...td, fontWeight: 700, color: "#dc3545" }}>{formatValue(p)}</td>
-                                        <td style={td}>{p.minOrderValue ? `${Number(p.minOrderValue).toLocaleString("vi-VN")}đ` : "—"}</td>
-                                        <td style={td}>{p.startDate || "—"}</td>
-                                        <td style={td}>{p.endDate || "—"}</td>
-                                        <td style={td}>
+                                        <td style={tdStyle}>{p.minOrderValue ? `${Number(p.minOrderValue).toLocaleString()}đ` : "—"}</td>
+                                        <td style={tdStyle}>{p.startDate ? new Date(p.startDate).toLocaleDateString("vi-VN") : "—"}</td>
+                                        <td style={tdStyle}>{p.endDate ? new Date(p.endDate).toLocaleDateString("vi-VN") : "—"}</td>
+                                        <td style={tdStyle}>
                                             <span
                                                 onClick={() => handleToggle(p.id)}
                                                 style={{
-                                                    cursor: "pointer", padding: "3px 10px", borderRadius: "12px", fontSize: "12px", fontWeight: 600,
+                                                    padding: "3px 10px", borderRadius: "12px", fontSize: "12px", fontWeight: 600, cursor: "pointer",
                                                     background: p.active ? "#d4edda" : "#f8d7da",
                                                     color: p.active ? "#155724" : "#721c24"
                                                 }}
                                             >
-                                                {p.active ? "✅ Đang bật" : "❌ Tắt"}
+                                                {p.active ? "Đang hoạt động" : "Tắt"}
                                             </span>
                                         </td>
-                                        <td style={td}>
-                                            <button onClick={() => openEdit(p)} style={btn("#0d6efd", "sm")}>Sửa</button>
+                                        <td style={tdStyle}>
+                                            <button onClick={() => openEdit(p)} style={btnStyle("#0d6efd", "sm")}>Sửa</button>
                                             {" "}
-                                            <button onClick={() => handleDelete(p.id)} style={btn("#dc3545", "sm")}>Xóa</button>
+                                            <button onClick={() => handleDelete(p.id)} style={btnStyle("#dc3545", "sm")}>Xóa</button>
                                         </td>
                                     </tr>
                                 ))}
@@ -168,55 +176,60 @@ function PromotionsAdmin() {
 
             {/* MODAL */}
             {showModal && (
-                <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.4)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <div style={{ background: "#fff", borderRadius: "10px", padding: "28px", width: "480px", boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>
-                        <h4 style={{ marginTop: 0 }}>{editItem ? "✏️ Sửa mã" : "➕ Thêm mã giảm giá"}</h4>
+                <div style={overlayStyle}>
+                    <div style={modalStyle}>
+                        <h4 style={{ marginTop: 0 }}>{editItem ? "✏️ Sửa khuyến mãi" : "➕ Thêm khuyến mãi"}</h4>
 
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                            <div style={{ gridColumn: "1/-1" }}>
-                                <label style={lbl}>Mã giảm giá *</label>
-                                <input value={form.code} onChange={e => setForm({ ...form, code: e.target.value.toUpperCase() })} style={inp} placeholder="VD: SALE20" />
-                            </div>
-                            <div style={{ gridColumn: "1/-1" }}>
-                                <label style={lbl}>Mô tả</label>
-                                <input value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} style={inp} placeholder="Giảm 20% cho đơn từ 200k" />
-                            </div>
-                            <div>
-                                <label style={lbl}>Loại giảm *</label>
-                                <select value={form.discountType} onChange={e => setForm({ ...form, discountType: e.target.value })} style={inp}>
-                                    <option value="PERCENT">Phần trăm (%)</option>
-                                    <option value="FIXED">Cố định (đồng)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label style={lbl}>Giá trị giảm *</label>
-                                <input type="number" value={form.discountValue} onChange={e => setForm({ ...form, discountValue: e.target.value })} style={inp}
-                                    placeholder={form.discountType === "PERCENT" ? "VD: 20" : "VD: 50000"} />
-                            </div>
-                            <div>
-                                <label style={lbl}>Đơn tối thiểu (đ)</label>
-                                <input type="number" value={form.minOrderValue} onChange={e => setForm({ ...form, minOrderValue: e.target.value })} style={inp} placeholder="VD: 200000" />
-                            </div>
-                            <div>
-                                <label style={lbl}>Trạng thái</label>
-                                <select value={form.active} onChange={e => setForm({ ...form, active: e.target.value === "true" })} style={inp}>
-                                    <option value="true">Đang bật</option>
-                                    <option value="false">Tắt</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label style={lbl}>Từ ngày</label>
-                                <input type="date" value={form.startDate} onChange={e => setForm({ ...form, startDate: e.target.value })} style={inp} />
-                            </div>
-                            <div>
-                                <label style={lbl}>Đến ngày</label>
-                                <input type="date" value={form.endDate} onChange={e => setForm({ ...form, endDate: e.target.value })} style={inp} />
-                            </div>
+                        <div style={{ marginBottom: "12px" }}>
+                            <label style={{ display: "block", marginBottom: "4px", fontWeight: 600 }}>Mã code</label>
+                            <input value={form.code || ""} onChange={e => setForm({ ...form, code: e.target.value })} style={inputStyle} />
                         </div>
 
-                        <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", marginTop: "20px" }}>
-                            <button onClick={() => setShowModal(false)} style={btn("#6c757d")}>Hủy</button>
-                            <button onClick={handleSave} style={btn("#f5a623")}>Lưu</button>
+                        <div style={{ marginBottom: "12px" }}>
+                            <label style={{ display: "block", marginBottom: "4px", fontWeight: 600 }}>Mô tả</label>
+                            <input value={form.description || ""} onChange={e => setForm({ ...form, description: e.target.value })} style={inputStyle} />
+                        </div>
+
+                        <div style={{ marginBottom: "12px" }}>
+                            <label style={{ display: "block", marginBottom: "4px", fontWeight: 600 }}>Loại giảm giá</label>
+                            <select value={form.discountType || "PERCENT"} onChange={e => setForm({ ...form, discountType: e.target.value })} style={inputStyle}>
+                                <option value="PERCENT">Phần trăm (%)</option>
+                                <option value="FIXED">Cố định (đ)</option>
+                            </select>
+                        </div>
+
+                        <div style={{ marginBottom: "12px" }}>
+                            <label style={{ display: "block", marginBottom: "4px", fontWeight: 600 }}>
+                                Giá trị giảm {form.discountType === "PERCENT" ? "(%)" : "(đ)"}
+                            </label>
+                            <input value={form.discountValue || ""} onChange={e => setForm({ ...form, discountValue: e.target.value })} style={inputStyle} />
+                        </div>
+
+                        <div style={{ marginBottom: "12px" }}>
+                            <label style={{ display: "block", marginBottom: "4px", fontWeight: 600 }}>Giá trị đơn hàng tối thiểu (đ)</label>
+                            <input value={form.minOrderValue || ""} onChange={e => setForm({ ...form, minOrderValue: e.target.value })} style={inputStyle} />
+                        </div>
+
+                        <div style={{ marginBottom: "12px" }}>
+                            <label style={{ display: "block", marginBottom: "4px", fontWeight: 600 }}>Từ ngày</label>
+                            <input type="date" value={form.startDate || ""} onChange={e => setForm({ ...form, startDate: e.target.value })} style={inputStyle} />
+                        </div>
+
+                        <div style={{ marginBottom: "12px" }}>
+                            <label style={{ display: "block", marginBottom: "4px", fontWeight: 600 }}>Đến ngày</label>
+                            <input type="date" value={form.endDate || ""} onChange={e => setForm({ ...form, endDate: e.target.value })} style={inputStyle} />
+                        </div>
+
+                        <div style={{ marginBottom: "12px" }}>
+                            <label style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 600, cursor: "pointer" }}>
+                                <input type="checkbox" checked={!!form.active} onChange={e => setForm({ ...form, active: e.target.checked })} />
+                                Đang hoạt động
+                            </label>
+                        </div>
+
+                        <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", marginTop: "16px" }}>
+                            <button onClick={() => setShowModal(false)} style={btnStyle("#6c757d")}>Hủy</button>
+                            <button onClick={handleSave} style={btnStyle("#f5a623")}>Lưu</button>
                         </div>
                     </div>
                 </div>
@@ -225,13 +238,15 @@ function PromotionsAdmin() {
     );
 }
 
-const td = { padding: "10px 14px", borderBottom: "1px solid #f0f0f0" };
-const lbl = { display: "block", marginBottom: "4px", fontWeight: 600, fontSize: "13px" };
-const inp = { width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #ddd", boxSizing: "border-box" };
-const btn = (bg, size) => ({
-    padding: size === "sm" ? "4px 10px" : "8px 20px",
+const thStyle = { padding: "12px 16px", textAlign: "left", fontWeight: 700, color: "#333" };
+const tdStyle = { padding: "10px 16px", borderBottom: "1px solid #f0f0f0" };
+const overlayStyle = { position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.4)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center" };
+const modalStyle = { background: "#fff", borderRadius: "10px", padding: "28px", width: "460px", maxHeight: "80vh", overflowY: "auto", boxShadow: "0 8px 32px rgba(0,0,0,0.2)" };
+const inputStyle = { width: "100%", padding: "8px 12px", borderRadius: "6px", border: "1px solid #ddd", boxSizing: "border-box" };
+const btnStyle = (bg, size) => ({
+    padding: size === "sm" ? "4px 12px" : "8px 20px",
     background: bg, color: "#fff", border: "none", borderRadius: "6px",
-    cursor: "pointer", fontWeight: 600, fontSize: size === "sm" ? "12px" : "14px"
+    cursor: "pointer", fontWeight: 600, fontSize: size === "sm" ? "13px" : "14px"
 });
 
 export default PromotionsAdmin;

@@ -1,38 +1,34 @@
 import { useEffect, useState } from "react";
+import axios from "../../axiosConfig";
+
+const API = "http://localhost:8081/api/users";
 
 function UsersAdmin() {
     const [users, setUsers] = useState([]);
     const [search, setSearch] = useState("");
     const [filterRole, setFilterRole] = useState("");
 
-    // Load danh sách users
     useEffect(() => {
-        fetch("http://localhost:8081/api/users")
-            .then(res => res.json())
-            .then(data => setUsers(data));
+        axios.get(API)
+            .then(res => setUsers(res.data))
+            .catch(err => console.log(err));
     }, []);
 
-    // Xóa user
     const handleDelete = (id) => {
         if (!window.confirm("Xóa user này?")) return;
-        fetch(`http://localhost:8081/api/users/${id}`, { method: "DELETE" })
-            .then(() => setUsers(users.filter(u => u.id !== id)));
+        axios.delete(`${API}/${id}`)
+            .then(() => setUsers(users.filter(u => u.id !== id)))
+            .catch(err => console.log(err));
     };
 
-    // Đổi role
     const handleRoleChange = (id, newRole) => {
-        fetch(`http://localhost:8081/api/users/${id}/role`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ role: newRole }),
-        })
-            .then(res => res.json())
-            .then(updated => {
-                setUsers(users.map(u => u.id === updated.id ? updated : u));
-            });
+        axios.put(`${API}/${id}/role`, { role: newRole })
+            .then(res => {
+                setUsers(users.map(u => u.id === res.data.id ? res.data : u));
+            })
+            .catch(err => console.log(err));
     };
 
-    // Lọc theo search + role
     const filtered = users.filter(u => {
         const matchSearch =
             (u.username || "").toLowerCase().includes(search.toLowerCase()) ||
@@ -92,40 +88,38 @@ function UsersAdmin() {
                                 Không có người dùng nào
                             </td>
                         </tr>
-                    ) : (
-                        filtered.map(u => (
-                            <tr key={u.id}>
-                                <td>{u.id}</td>
-                                <td><strong>{u.username}</strong></td>
-                                <td>{u.name || "—"}</td>
-                                <td>{u.email || "—"}</td>
-                                <td>{u.phone || "—"}</td>
-                                <td>{u.gender || "—"}</td>
-                                <td>{u.birthday || "—"}</td>
-                                <td>
-                                    <select
-                                        className={`form-select form-select-sm ${u.role === "ADMIN" ? "text-danger fw-bold" : ""}`}
-                                        style={{ width: "100px" }}
-                                        value={u.role}
-                                        onChange={e => handleRoleChange(u.id, e.target.value)}
-                                    >
-                                        <option value="USER">USER</option>
-                                        <option value="ADMIN">ADMIN</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <button
-                                        className="btn btn-danger btn-sm"
-                                        onClick={() => handleDelete(u.id)}
-                                        disabled={u.role === "ADMIN"}
-                                        title={u.role === "ADMIN" ? "Không thể xóa ADMIN" : "Xóa"}
-                                    >
-                                        🗑 Xóa
-                                    </button>
-                                </td>
-                            </tr>
-                        ))
-                    )}
+                    ) : filtered.map(u => (
+                        <tr key={u.id}>
+                            <td>{u.id}</td>
+                            <td><strong>{u.username}</strong></td>
+                            <td>{u.name || "—"}</td>
+                            <td>{u.email || "—"}</td>
+                            <td>{u.phone || "—"}</td>
+                            <td>{u.gender || "—"}</td>
+                            <td>{u.birthday || "—"}</td>
+                            <td>
+                                <select
+                                    className={`form-select form-select-sm ${u.role === "ADMIN" ? "text-danger fw-bold" : ""}`}
+                                    style={{ width: "100px" }}
+                                    value={u.role}
+                                    onChange={e => handleRoleChange(u.id, e.target.value)}
+                                >
+                                    <option value="USER">USER</option>
+                                    <option value="ADMIN">ADMIN</option>
+                                </select>
+                            </td>
+                            <td>
+                                <button
+                                    className="btn btn-danger btn-sm"
+                                    onClick={() => handleDelete(u.id)}
+                                    disabled={u.role === "ADMIN"}
+                                    title={u.role === "ADMIN" ? "Không thể xóa ADMIN" : "Xóa"}
+                                >
+                                    🗑 Xóa
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
                 </tbody>
             </table>
         </div>
